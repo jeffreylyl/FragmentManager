@@ -242,9 +242,9 @@ public class StackManager implements CloseFragment {
     }
 
     public void onBackPressed() {
-        ArrayList<RootFragment> last = stack.getLast();
-        final RootFragment from = last.get(0);
-        final RootFragment to = last.get(1);
+        RootFragment[] last = stack.getLast();
+        final RootFragment from = last[0];
+        final RootFragment to = last[1];
         final boolean isToNull = (to == null);
         if (from != null) {
             if (to != null) {

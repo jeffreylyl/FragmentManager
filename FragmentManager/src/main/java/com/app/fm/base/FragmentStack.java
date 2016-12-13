@@ -103,26 +103,26 @@ public class FragmentStack {
         this.listener = listener;
     }
 
-    public ArrayList<RootFragment> getLast() {
-        ArrayList<RootFragment> fragmentList = new ArrayList<RootFragment>(2);
+    public RootFragment[] getLast() {
+        RootFragment[] fragmentArr = new RootFragment[2];
         boolean hasFirst = false;
         for (int x = stackList.size() - 1; x >= 0; x--) {
             ArrayList<RootFragment> list = stackList.get(x);
             if (list != null && (!list.isEmpty())) {
                 if (hasFirst) {
-                    fragmentList.set(1, list.get(list.size() - 1));
+                    fragmentArr[1] = list.get(list.size() - 1);
                     break;
                 } else {
                     hasFirst = true;
-                    fragmentList.set(0, list.get(list.size() - 1));
+                    fragmentArr[0] = list.get(list.size() - 1);
                     if (list.size() > 1) {
-                        fragmentList.set(1, list.get(list.size() - 2));
+                        fragmentArr[1] = list.get(list.size() - 2);
                         break;
                     }
                 }
             }
         }
-        return fragmentList;
+        return fragmentArr;
     }
 
     public Fragment getCurrentFragment() {
