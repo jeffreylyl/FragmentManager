@@ -15,6 +15,8 @@ import android.view.animation.AnimationUtils;
 import com.app.fm.listener.SimpleAnimationListener;
 import com.app.fragment_manager.R;
 
+import java.util.ArrayList;
+
 public class StackManager implements CloseFragment {
     protected FragmentStack stack;
     protected final FragmentActivity context;
@@ -240,9 +242,9 @@ public class StackManager implements CloseFragment {
     }
 
     public void onBackPressed() {
-        RootFragment[] last = stack.getLast();
-        final RootFragment from = last[0];
-        final RootFragment to = last[1];
+        ArrayList<RootFragment> last = stack.getLast();
+        final RootFragment from = last.get(0);
+        final RootFragment to = last.get(1);
         final boolean isToNull = (to == null);
         if (from != null) {
             if (to != null) {
