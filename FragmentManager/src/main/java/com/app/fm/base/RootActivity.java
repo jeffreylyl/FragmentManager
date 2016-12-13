@@ -30,10 +30,14 @@ public abstract class RootActivity extends AppCompatActivity {
         context = this;
         mStringUtil = StringUtil.getInstance(this);
 
-        manager = new StackManager(this);
-        manager.setFragment(getRootFragment());
+        initStackManager();
 
         onCreateNow(savedInstanceState);
+    }
+
+    public void initStackManager() {
+        manager = new StackManager(this);
+        manager.setFragment(getRootFragment());
     }
 
     public void onCreateNow(Bundle savedInstanceState) {
