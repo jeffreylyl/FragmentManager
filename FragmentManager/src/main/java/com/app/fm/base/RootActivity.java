@@ -18,11 +18,11 @@ public abstract class RootActivity extends AppCompatActivity {
     public StringUtil mStringUtil;
 
     public abstract int getLayoutId();
-    protected abstract void initViews();
-    protected abstract void addListeners();
+    public abstract void initViews();
+    public abstract void addListeners();
 
     @Override
-    protected final void onCreate(@Nullable Bundle savedInstanceState) {
+    public final void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(getLayoutId());
@@ -41,7 +41,7 @@ public abstract class RootActivity extends AppCompatActivity {
         addListeners();
     }
 
-    protected abstract
+    public abstract
     @NonNull
     RootFragment getRootFragment();
 

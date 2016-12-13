@@ -85,10 +85,10 @@ public abstract class RootFragment extends Fragment implements OnNewIntent {
         }
     }
 
-    protected void onNowHidden() {
+    public void onNowHidden() {
     }
 
-    protected void onNextShow() {
+    public void onNextShow() {
     }
 
     public RootActivity getRoot() {

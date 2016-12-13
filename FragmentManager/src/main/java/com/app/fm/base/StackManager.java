@@ -167,7 +167,7 @@ public class StackManager implements CloseFragment {
         closeFragment(fragment);
     }
 
-    private void closeLast(Integer animationId) {
+    public void closeLast(Integer animationId) {
         if (!stack.isLast()) {
             if (next_out != null) {
                 final Fragment fragment = stack.getAndRemoveLastFragment();
@@ -193,7 +193,7 @@ public class StackManager implements CloseFragment {
     }
 
     //close last fragment under an outer existing FragmentTransaction.
-    private void closeLast(Integer animationId, final FragmentTransaction transaction) {
+    public void closeLast(Integer animationId, final FragmentTransaction transaction) {
         if (!stack.isLast()) {
             if (next_out != null) {
                 final Fragment fragment = stack.getAndRemoveLastFragment();

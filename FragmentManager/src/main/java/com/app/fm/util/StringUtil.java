@@ -12,7 +12,11 @@ public class StringUtil {
 
     public static StringUtil getInstance(Context context) {
         if (instance == null) {
-            instance = new StringUtil(context);
+            synchronized (StringUtil.class) {
+                if (instance == null) {
+                    instance = new StringUtil(context);
+                }
+            }
         }
         return instance;
     }

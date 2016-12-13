@@ -99,11 +99,11 @@ public class FragmentStack {
         }
     }
 
-    protected void setCloseFragmentListener(CloseFragment listener) {
+    public void setCloseFragmentListener(CloseFragment listener) {
         this.listener = listener;
     }
 
-    protected RootFragment[] getLast() {
+    public RootFragment[] getLast() {
         RootFragment[] fagArr = new RootFragment[2];
         boolean hasFirst = false;
         for (int x = stackList.size() - 1; x >= 0; x--) {
