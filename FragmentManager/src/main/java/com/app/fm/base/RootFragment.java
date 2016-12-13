@@ -11,19 +11,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.app.fm.util.StringUtil;
+
 
 public abstract class RootFragment extends Fragment implements OnNewIntent {
-    public int titleResId = -1;
-    public Toolbar toolbar;
-    public View.OnClickListener errorButtonClickListener;
+    public StringUtil mStringUtil;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        titleResId = getTitleResId();
+        mStringUtil = getRoot().mStringUtil;
     }
 
-    public abstract int getTitleResId();
 
     public abstract int getFragmentLayoutId();
 
@@ -39,10 +38,6 @@ public abstract class RootFragment extends Fragment implements OnNewIntent {
         addLinsteners();
         handleOthers();
         return view;
-    }
-
-    protected View.OnClickListener getErrorButtonClickListener() {
-        return errorButtonClickListener;
     }
 
     public void handleOthers() {
