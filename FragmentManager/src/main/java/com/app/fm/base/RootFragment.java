@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import com.app.fm.util.StringUtil;
 
 
-public abstract class RootFragment extends Fragment implements OnNewIntent {
+public abstract class RootFragment extends Fragment implements OnNewIntent, IBackPressed {
     public StringUtil mStringUtil;
 
     @Override
@@ -102,6 +102,11 @@ public abstract class RootFragment extends Fragment implements OnNewIntent {
 
     @Override
     public void onNewIntent() {
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        return false;
     }
 
     public StackManager getStackManager() {
