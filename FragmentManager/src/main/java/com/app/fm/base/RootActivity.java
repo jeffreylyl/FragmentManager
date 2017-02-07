@@ -22,7 +22,7 @@ public abstract class RootActivity extends AppCompatActivity {
     public abstract void addListeners();
 
     @Override
-    public final void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(getLayoutId());
