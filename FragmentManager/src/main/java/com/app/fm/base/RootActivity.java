@@ -25,16 +25,16 @@ public abstract class RootActivity extends AppCompatActivity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(savedInstanceState == null){
-            setContentView(getLayoutId());
+       
+        setContentView(getLayoutId());
 
-            context = this;
-            mStringUtil = StringUtil.getInstance(this);
+        context = this;
+        mStringUtil = StringUtil.getInstance(this);
 
-            initStackManager();
+        initStackManager();
 
-            onCreateNow(savedInstanceState);
-        }
+        onCreateNow(savedInstanceState);
+        
     }
 
     public void initStackManager() {
