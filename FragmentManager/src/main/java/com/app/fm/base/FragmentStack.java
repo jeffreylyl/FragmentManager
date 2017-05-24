@@ -60,6 +60,7 @@ public class FragmentStack {
                 lastList.add(fragment);
             } else {
                 if (listener != null) {
+                    listener.beginTransaction();
                     listener.show(lastList.get(tempIndex));
                     StackManager.isFirstClose = true;
                     for (int i = lastList.size() - 1; i > tempIndex; i--) {
@@ -68,6 +69,7 @@ public class FragmentStack {
                     for (int j = lastList.size() - 1; j > tempIndex; j--) {
                         lastList.remove(j);
                     }
+                    listener.commit();
                 }
 
             }
@@ -135,13 +137,13 @@ public class FragmentStack {
         }
     }
 
-    public Fragment getAndRemoveLastFragment() {
+    public RootFragment getAndRemoveLastFragment() {
         ArrayList<RootFragment> lastStack = stackList.get(stackList.size() - 1);
         if (lastStack == null || lastStack.isEmpty()) {
             stackList.remove(lastStack);
             return getAndRemoveLastFragment();
         } else {
-            Fragment removedFragment = lastStack.remove(lastStack.size() - 1);
+            RootFragment removedFragment = lastStack.remove(lastStack.size() - 1);
             if (lastStack.isEmpty()) {
                 stackList.remove(lastStack);
             }

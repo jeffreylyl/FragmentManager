@@ -15,8 +15,6 @@ import android.view.animation.AnimationUtils;
 import com.app.fm.listener.SimpleAnimationListener;
 import com.app.fragment_manager.R;
 
-import java.util.ArrayList;
-
 public class StackManager implements CloseFragment {
     protected FragmentStack stack;
     protected final FragmentActivity context;
@@ -36,6 +34,8 @@ public class StackManager implements CloseFragment {
     public static final int SINGLE_TASK = 0x13;
     public static final int SINGLE_INSTANCE = 0x14;
     public static final int KEEP_CURRENT = 0x15;
+    FragmentTransaction mTransaction;
+    public static boolean isFirstClose = true;
 
     public void setClickSpace(long CLICK_SPACE) {
         this.CLICK_SPACE = CLICK_SPACE;
@@ -78,7 +78,6 @@ public class StackManager implements CloseFragment {
     }
 
     /**
-     *
      * @param nextIn  The next page to enter the animation
      * @param nextOut The next page out of the animation
      * @param quitIn  The current page into the animation
@@ -130,43 +129,87 @@ public class StackManager implements CloseFragment {
         addFragment(from, to, bundle, KEEP_CURRENT);
     }
 
-    public void closeFragment(Fragment mTargetFragment) {
-        FragmentTransaction transaction = context.getSupportFragmentManager().beginTransaction();
-        transaction.remove(mTargetFragment).commit();
+    @Override
+    public void beginTransaction() {
+        if (mTransaction != null) {
+            throw new RuntimeException("There is a transaction existing already !!!");
+        }
+        mTransaction = context.getSupportFragmentManager().beginTransaction();
     }
 
-    //close under an outer existing FragmentTransaction
-    public void closeFragment(Fragment mTargetFragment, FragmentTransaction transaction) {
-        transaction.remove(mTargetFragment);
+    @Override
+    public void commit() {
+        mTransaction.commit();
+        mTransaction = null;
+    }
+
+    public void closeFragment(Fragment mTargetFragment) {
+        if (mTransaction == null) {
+            FragmentTransaction transaction = context.getSupportFragmentManager().beginTransaction();
+            transaction.remove(mTargetFragment).commit();
+        } else {
+            mTransaction.remove(mTargetFragment);
+        }
     }
 
     public void closeUtilHome() {
-        closeUtilLast(null);
-    }
+        if (stack.isLast()) {
+            return;
+        }
 
-    public RootFragment closeUtilHomeAndReturn() {
-        return closeUtilLast(R.anim.slide_out_top);
-    }
+        beginTransaction();
 
-    public RootFragment closeUtilLast(Integer animationId) {
-        FragmentTransaction transaction = context.getSupportFragmentManager().beginTransaction();
-
-        closeLast(animationId, transaction);
-
+        isFirstClose = true;
         while (!stack.isLast()) {
-            closeFragment((RootFragment) stack.getAndRemoveLastFragment(), transaction);
+            close(stack.getAndRemoveLastFragment());
         }
 
         RootFragment lastFragment = getCurrentFragment();
-        show(lastFragment, transaction);
+        show(lastFragment);
 
-        transaction.commit();
+        commit();
+    }
+
+    public RootFragment closeUtilHomeAndReturn() {
+        if (stack.isLast()) {
+            return getCurrentFragment();
+        }
+
+        beginTransaction();
+
+        while (!stack.isLast()) {
+            closeFragment(stack.getAndRemoveLastFragment());
+        }
+
+        RootFragment lastFragment = getCurrentFragment();
+        showFragment(lastFragment);
+
+        commit();
+
+        return lastFragment;
+    }
+
+    public RootFragment closeUtilLast(Integer animationId) {
+        if (stack.isLast()) {
+            return getCurrentFragment();
+        }
+        beginTransaction();
+
+        closeLast(animationId);
+
+        while (!stack.isLast()) {
+            closeFragment(stack.getAndRemoveLastFragment());
+        }
+
+        RootFragment lastFragment = getCurrentFragment();
+        showFragment(lastFragment);
+
+        commit();
         return lastFragment;
     }
 
     public void closeLast() {
-        Fragment fragment = stack.getAndRemoveLastFragment();
-        closeFragment(fragment);
+        closeFragment(stack.getAndRemoveLastFragment());
     }
 
     public void closeLast(Integer animationId) {
@@ -187,38 +230,32 @@ public class StackManager implements CloseFragment {
                     }
                 });
             } else {
-                Fragment fragment = stack.getAndRemoveLastFragment();
-                closeFragment(fragment);
+                closeLast();
             }
         }
-
     }
 
-    //close last fragment under an outer existing FragmentTransaction.
-    public void closeLast(Integer animationId, final FragmentTransaction transaction) {
-        if (!stack.isLast()) {
-            if (next_out != null) {
-                final Fragment fragment = stack.getAndRemoveLastFragment();
-                Animation animation = null;
-
-                if (animationId == null) {
-                    animation = next_out;
+    @Override
+    public void close(final RootFragment fragment) {
+        if (isFirstClose) {
+            View view = fragment.getView();
+            if (view != null) {
+                if (next_out != null) {
+                    view.startAnimation(next_out);
+                    next_out.setAnimationListener(new SimpleAnimationListener() {
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            closeFragment(fragment);
+                        }
+                    });
                 } else {
-                    animation = AnimationUtils.loadAnimation(context, animationId.intValue());
+                    closeFragment(fragment);
                 }
-
-                fragment.getView().startAnimation(animation);
-                animation.setAnimationListener(new SimpleAnimationListener() {
-                    public void onAnimationEnd(Animation animation) {
-                        closeFragment(fragment, transaction);
-                    }
-                });
-            } else {
-                Fragment fragment = stack.getAndRemoveLastFragment();
-                closeFragment(fragment, transaction);
             }
+            isFirstClose = false;
+        } else {
+            closeFragment(fragment);
         }
-
     }
 
     public void closeFragment(String tag) {
@@ -241,15 +278,32 @@ public class StackManager implements CloseFragment {
         }
     }
 
+    public void showFragment(Fragment mTargetFragment) {
+        if (mTransaction == null) {
+            FragmentTransaction transaction = context.getSupportFragmentManager().beginTransaction();
+            transaction.show(mTargetFragment).commit();
+        } else {
+            mTransaction.show(mTargetFragment);
+        }
+    }
+
+    @Override
+    public void show(RootFragment fragment) {
+        showFragment(fragment);
+        View view = fragment.getView();
+        if (view != null && next_in != null) {
+            view.startAnimation(next_in);
+        }
+    }
+
     public void onBackPressed() {
         RootFragment[] last = stack.getLast();
-        final RootFragment from = (RootFragment) last[0];
+        final RootFragment from = last[0];
         //intercept back event. if true, intercept back event and does not close
         if (from.onBackPressed()) {
             return;
         }
         final RootFragment to = last[1];
-        final boolean isToNull = (to == null);
         if (from != null) {
             if (to != null) {
                 FragmentTransaction transaction = context.getSupportFragmentManager().beginTransaction();
@@ -279,50 +333,6 @@ public class StackManager implements CloseFragment {
         } else {
             closeAllFragment();
             context.finish();
-        }
-    }
-
-    public static boolean isFirstClose = true;
-
-    @Override
-    public void close(final RootFragment fragment) {
-        if (isFirstClose) {
-            View view = fragment.getView();
-            if (view != null) {
-                if (next_out != null) {
-                    view.startAnimation(next_out);
-                    next_out.setAnimationListener(new SimpleAnimationListener() {
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            closeFragment(fragment);
-                        }
-                    });
-                } else {
-                    closeFragment(fragment);
-                }
-            }
-            isFirstClose = false;
-        } else {
-            closeFragment(fragment);
-        }
-
-    }
-
-    public void show(RootFragment fragment) {
-        FragmentTransaction transaction = context.getSupportFragmentManager().beginTransaction();
-        transaction.show(fragment).commit();
-        View view = fragment.getView();
-        if (view != null && next_in != null) {
-            view.startAnimation(next_in);
-        }
-    }
-
-    //show under an outer existing FragmentTransaction
-    public void show(RootFragment fragment, FragmentTransaction transaction) {
-        transaction.show(fragment);
-        View view = fragment.getView();
-        if (view != null && next_in != null) {
-            view.startAnimation(next_in);
         }
     }
 
